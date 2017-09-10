@@ -1,66 +1,114 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" charset="utf-8"> 
-<title>拖拽</title>
-<style>
-*{margin:0;padding:0;}
-#container{position:relative;width:100%;}
-#div1{width:200px;height:200px;position:absolute;top:50%;margin-top:-100px;left:50%;margin-left:-100px;background:#ff8844;border-radius: 100px;}
-</style>
-<script>
-window.onload=function ()
-{
-	var container=document.getElementById('container');
-	container.style.height=window.screen.height + 'px';
-	var oDiv=document.getElementById('div1');
-	console.log( window.screen.height)
-	var disX=0;
-	var disY=0;
-	oDiv.onmousedown=function (ev)
-	{
-		var oEvent=ev||event;
-		disX=oEvent.clientX-oDiv.offsetLeft;
-		disY=oEvent.clientY-oDiv.offsetTop;
-		document.onmousemove=function (ev)
-		{
-			var oEvent=ev||event;
-			var l=oEvent.clientX-disX;
-			var t=oEvent.clientY-disY;
-			if(l<0)
-			{
-				l=0;
-			}
-			else if(l>document.documentElement.clientWidth-oDiv.offsetWidth)
-			{
-				l=document.documentElement.clientWidth-oDiv.offsetWidth;
-			}
-			if(t<0)
-			{
-				t=0;
-			}
-			else if(t>document.documentElement.clientHeight-oDiv.offsetHeight)
-			{
-				t=document.documentElement.clientHeight-oDiv.offsetHeight;
-			}
-			
-			oDiv.style.left=l+100+'px';
-			oDiv.style.top=t+100+'px';
-		};
-		document.onmouseup=function ()
-		{
-			document.onmousemove=null;
-			document.onmouseup=null;
-		};
-		
-		return false;
-	};
-};
-</script>
+  <meta charset="UTF-8">
+  <title>适配移动端的拖动效果</title>
+  <meta content="initial-scale=1.0,maximum-scale=1.0,width=device-width" name="viewport">
+  <style>
+  *{margin: 0px;padding: 0px;}
+    #div1{
+     position:relative;width:100%;
+    }
+    #div2{
+      width:200px;height:200px;position:absolute;top:50%;margin-top:-100px;left:50%;margin-left:-100px;background:#ff8844;border-radius: 100px;
+    }
+  </style>
 </head>
 <body>
-<div id="container">
-	<div id="div1"></div>
-</div>	
+<div id="div1">
+  <div id="div2" class="viewerimg"></div>
+</div>
+<script>
+  var flag = false;
+  var cur = {
+    x:0,
+    y:0
+  }
+  //封装可视区宽度
+  var clientW = function(){
+      return document.documentElement.clientWidth || document.body.clientWidth;
+  };
+  //封装可视区高度
+  var clientH = function(){
+      return document.documentElement.clientHeight||document.body.clientHeight;
+  };
+  var div1=document.getElementById('div1');
+  div1.style.height=window.screen.height + 'px';
+  var nx,ny,dx,dy,x,y,cx,ch;
+  cx = clientW();
+  ch = clientH();
+  console.log(cx,ch)
+  function down(){
+    flag = true;
+    var touch ;
+    if(event.touches){
+      touch = event.touches[0];
+    }else {
+      touch = event;
+    }
+    cur.x = touch.clientX;
+    cur.y = touch.clientY;
+    dx = div2.offsetLeft;
+    dy = div2.offsetTop;
+    div2.style.marginLeft=0+'px';
+    div2.style.marginTop=0+'px';
+  }
+  function move(){
+    if(flag){
+      var touch ;
+      if(event.touches){
+        touch = event.touches[0];
+      }else {
+        touch = event;
+      }
+      nx = touch.clientX - cur.x;
+      ny = touch.clientY - cur.y;
+      x = dx+nx;
+      y = dy+ny;
+      div2.style.marginLeft=0+'px';
+      div2.style.marginTop=0+'px';
+      div2.style.left = x+"px";
+      div2.style.top = y+"px";
+      if(x<0){
+        div2.style.left = 0+"px";
+      }else if(x>cx-div2.offsetWidth){
+        div2.style.left =cx-div2.offsetWidth+"px";
+      }
+      if(y<0){
+        div2.style.top = 0+"px";
+      }else if(y>ch-div2.offsetHeight){
+        div2.style.top =ch-div2.offsetHeight+"px";
+      }
+      //阻止页面的滑动默认事件
+      document.addEventListener("touchmove",function(){
+        event.preventDefault();
+      },false);
+    }
+  }
+  //鼠标释放时候的函数
+  function end(){
+    flag = false;
+  }
+  var div2 = document.getElementById("div2");
+  div2.addEventListener("mousedown",function(){
+    down();
+  },false);
+  div2.addEventListener("touchstart",function(){
+    down();
+  },false)
+  div2.addEventListener("mousemove",function(){
+    move();
+  },false);
+  div2.addEventListener("touchmove",function(){
+    move();
+  },false)
+  document.body.addEventListener("mouseup",function(){
+    end();
+  },false);
+  div2.addEventListener("touchend",function(){
+    end();
+  },false);
+  // 手指触摸放大缩小js
+</script>
 </body>
 </html>
